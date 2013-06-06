@@ -1,6 +1,8 @@
 #ifndef NODE_GSS_GSS_H_
 #define NODE_GSS_GSS_H_
 
+#include <vector>
+
 #include <node.h>
 #include <node_buffer.h>
 #include <v8.h>
@@ -79,6 +81,7 @@ ContextDeleter(OM_uint32* minor_status, gss_ctx_id_t* ctx) {
 inline OM_uint32
 OwnOidDeleter(OM_uint32* minor_status, gss_OID* oid) {
   delete[] static_cast<char*>((*oid)->elements);
+  delete (*oid);
   *oid = GSS_C_NO_OID;
   return GSS_S_COMPLETE;
 }
@@ -90,6 +93,9 @@ typedef GssHandle<gss_name_t, gss_release_name> NameHandle;
 // OIDs in GSSAPI are really annoying. Some are owned by the library
 // and static. But the ones in a gss_OID_set are dynamic. For sanity,
 // make a copy of those. In that case, we own them.
+//
+// TODO(davidben): This is silly. Makes more sense just to
+// unconditionally copy and own all our own OIDs.
 typedef GssHandle<gss_OID> OidHandle;
 typedef GssHandle<gss_OID, OwnOidDeleter> OwnOidHandle;
 
@@ -117,6 +123,13 @@ typedef GssHandle<gss_OID, OwnOidDeleter> OwnOidHandle;
         "Expected OID as argument " #index)));                          \
     return scope.Close(v8::Undefined());                                \
   }
+#define OID_SET_ARGUMENT(index, name)                                   \
+  scoped_OID_set name;                                                  \
+  if (!ObjectToOidSet(args[index], &name)) {                            \
+    v8::ThrowException(v8::Exception::TypeError(v8::String::New(        \
+        "Expected OID array as argument " #index)));                    \
+    return scope.Close(v8::Undefined());                                \
+  }
 #define HANDLE_ARGUMENT(index, type, name)                              \
   if (!type::HasInstance(args[index])) {                                \
     v8::ThrowException(v8::Exception::TypeError(v8::String::New(        \
@@ -125,11 +138,39 @@ typedef GssHandle<gss_OID, OwnOidDeleter> OwnOidHandle;
   }                                                                     \
   type* name = node::ObjectWrap::Unwrap<type>(args[index]->ToObject());
 
+// RAII-ish gss_OID_set for temporaries we create. DOES NOT OWN ALL
+// IT'S DATA. In particular, the elements pointers of the individual
+// OIDs in the set are unowned. User must ensure they last long
+// enough.
+class scoped_OID_set {
+ public:
+  scoped_OID_set() {
+    Update();
+  }
 
+  void Append(gss_OID oid) {
+    data_.push_back(*oid);
+    Update();
+  }
+  gss_OID_set oid_set() { return &oid_set_; }
+
+ private:
+  void Update() {
+    oid_set_.count = data_.size();
+    oid_set_.elements = data_.empty() ? NULL : &data_[0];
+  }
+
+  gss_OID_set_desc oid_set_;
+  std::vector<gss_OID_desc> data_;
+};
+
+bool ObjectToOidSet(v8::Handle<v8::Value> value, scoped_OID_set* out);
+v8::Local<v8::Array> OidSetToArray(gss_OID_set oid_set);
 bool NodeBufferAsGssBuffer(v8::Handle<v8::Value> value, gss_buffer_t out);
 
 // Various initialization functions. Groups by how functions are
 // organized in Section 2 of RFC2744
+void CredInit(v8::Handle<v8::Object> exports);
 void NameInit(v8::Handle<v8::Object> exports);
 void MiscInit(v8::Handle<v8::Object> exports);
 

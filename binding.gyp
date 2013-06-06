@@ -3,6 +3,7 @@
         {
             "target_name": "gss",
             "sources": [
+                "src/cred.cc",
                 "src/gss.cc",
                 "src/misc.cc",
                 "src/name.cc",

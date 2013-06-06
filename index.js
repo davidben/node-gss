@@ -97,3 +97,21 @@ exports.importName = function(buffer, oid) {
   gssCall(null, internal.importName, buffer, oid, handle);
   return new Name(handle);
 };
+
+function Credential(handle) {
+  this.handle_ = handle;
+}
+
+exports.acquireCredential = function(name,
+                                     timeReq,
+                                     desiredMechs,
+                                     credUsage) {
+  var nameHandle = name ? name.handle_ : new NameHandle();
+  var handle = new internal.CredHandle();
+  var ret = gssCall(null, internal.acquireCred,
+                    nameHandle, timeReq, desiredMechs, credUsage);
+  // TODO(davidben): Actually do something with the return value? We
+  // went through all this trouble to plumb the the gss_OID_set
+  // through...
+  return new Credential(handle);
+};

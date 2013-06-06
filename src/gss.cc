@@ -18,6 +18,7 @@ void Init(v8::Handle<v8::Object> exports) {
   ContextHandle::Init(exports, "ContextHandle");
   CredHandle::Init(exports, "CredHandle");
   NameHandle::Init(exports, "NameHandle");
+  OwnOidHandle::Init(exports, "OID");
   OidHandle::Init(exports, "OID");
 
   // Attach constants separately, so it's easy to export the all.
@@ -95,6 +96,7 @@ void Init(v8::Handle<v8::Object> exports) {
   AddConstant(constants, GSS_S_UNSEQ_TOKEN, "S_UNSEQ_TOKEN");
   AddConstant(constants, GSS_S_GAP_TOKEN, "S_GAP_TOKEN");
 
+  CredInit(exports);
   NameInit(exports);
   MiscInit(exports);
 }
