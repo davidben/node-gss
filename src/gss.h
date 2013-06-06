@@ -67,7 +67,7 @@ template <class T, OM_uint32 (*Deleter)(OM_uint32*, T*)>
 v8::Persistent<v8::Function> GssHandle<T, Deleter>::constructor_;
 
 
-OM_uint32
+inline OM_uint32
 ContextDeleter(OM_uint32* minor_status, gss_ctx_id_t* ctx) {
   return gss_delete_sec_context(minor_status, ctx, GSS_C_NO_BUFFER);
 }
