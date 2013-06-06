@@ -72,19 +72,26 @@ class GssHandle : public node::ObjectWrap {
 template <class T, OM_uint32 (*Deleter)(OM_uint32*, T*)>
 v8::Persistent<v8::FunctionTemplate> GssHandle<T, Deleter>::template_;
 
-
 inline OM_uint32
 ContextDeleter(OM_uint32* minor_status, gss_ctx_id_t* ctx) {
   return gss_delete_sec_context(minor_status, ctx, GSS_C_NO_BUFFER);
+}
+inline OM_uint32
+OwnOidDeleter(OM_uint32* minor_status, gss_OID* oid) {
+  delete[] static_cast<char*>((*oid)->elements);
+  *oid = GSS_C_NO_OID;
+  return GSS_S_COMPLETE;
 }
 
 typedef GssHandle<gss_ctx_id_t, ContextDeleter> ContextHandle;
 typedef GssHandle<gss_cred_id_t, gss_release_cred> CredHandle;
 typedef GssHandle<gss_name_t, gss_release_name> NameHandle;
 
-// TODO(davidben): Subclass or wrap or something so we can provide a
-// equals() method for OIDs.
+// OIDs in GSSAPI are really annoying. Some are owned by the library
+// and static. But the ones in a gss_OID_set are dynamic. For sanity,
+// make a copy of those. In that case, we own them.
 typedef GssHandle<gss_OID> OidHandle;
+typedef GssHandle<gss_OID, OwnOidDeleter> OwnOidHandle;
 
 // A bunch of macros for extracting types.
 #define BUFFER_ARGUMENT(index, name)                                    \
@@ -94,11 +101,14 @@ typedef GssHandle<gss_OID> OidHandle;
       "Expected Buffer as argument " #index)));                         \
     return scope.Close(v8::Undefined());                                \
   }
-// Make this one special so it can deal with NULLs.
+// This one is all kinds of special...
 #define OID_ARGUMENT(index, name)                                       \
   gss_OID name;                                                         \
   if (OidHandle::HasInstance(args[index])) {                            \
     name = node::ObjectWrap::Unwrap<OidHandle>(                         \
+        args[index]->ToObject())->get();                                \
+  } else if (OwnOidHandle::HasInstance(args[index])) {                  \
+    name = node::ObjectWrap::Unwrap<OwnOidHandle>(                      \
         args[index]->ToObject())->get();                                \
   } else if (args[index]->IsNull() || args[index]->IsUndefined()) {     \
     name = GSS_C_NO_OID;                                                \
