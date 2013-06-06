@@ -19,8 +19,8 @@ v8::Handle<v8::Value> ImportName(const v8::Arguments& args) {
   OM_uint32 major = gss_import_name(&minor, &buffer, oid, &name->get());
   
   v8::Local<v8::Object> ret = v8::Object::New();
-  ret->Set(v8::String::NewSymbol("major"), v8::Integer::New(major));
-  ret->Set(v8::String::NewSymbol("minor"), v8::Integer::New(minor));
+  ret->Set(v8::String::NewSymbol("major"), v8::Integer::NewFromUnsigned(major));
+  ret->Set(v8::String::NewSymbol("minor"), v8::Integer::NewFromUnsigned(minor));
   return scope.Close(ret);
 }
 
@@ -41,8 +41,8 @@ v8::Handle<v8::Value> DisplayName(const v8::Arguments& args) {
   OM_uint32 major = gss_display_name(&minor, name->get(), &buffer, &oid);
 
   v8::Local<v8::Object> ret = v8::Object::New();
-  ret->Set(v8::String::NewSymbol("major"), v8::Integer::New(major));
-  ret->Set(v8::String::NewSymbol("minor"), v8::Integer::New(minor));
+  ret->Set(v8::String::NewSymbol("major"), v8::Integer::NewFromUnsigned(major));
+  ret->Set(v8::String::NewSymbol("minor"), v8::Integer::NewFromUnsigned(minor));
   ret->Set(v8::String::NewSymbol("buffer"),
            node::Buffer::New((const char*)buffer.value,
                              buffer.length)->handle_);
@@ -70,8 +70,8 @@ v8::Handle<v8::Value> CompareName(const v8::Arguments& args) {
                                      name1->get(), name2->get(), &name_equal);
 
   v8::Local<v8::Object> ret = v8::Object::New();
-  ret->Set(v8::String::NewSymbol("major"), v8::Integer::New(major));
-  ret->Set(v8::String::NewSymbol("minor"), v8::Integer::New(minor));
+  ret->Set(v8::String::NewSymbol("major"), v8::Integer::NewFromUnsigned(major));
+  ret->Set(v8::String::NewSymbol("minor"), v8::Integer::NewFromUnsigned(minor));
   ret->Set(v8::String::NewSymbol("nameEqual"), v8::Integer::New(name_equal));
   return scope.Close(ret);
 }
@@ -94,8 +94,8 @@ v8::Handle<v8::Value> CanonicalizeName(const v8::Arguments& args) {
                                           name->get(), oid, &output->get());
 
   v8::Local<v8::Object> ret = v8::Object::New();
-  ret->Set(v8::String::NewSymbol("major"), v8::Integer::New(major));
-  ret->Set(v8::String::NewSymbol("minor"), v8::Integer::New(minor));
+  ret->Set(v8::String::NewSymbol("major"), v8::Integer::NewFromUnsigned(major));
+  ret->Set(v8::String::NewSymbol("minor"), v8::Integer::NewFromUnsigned(minor));
   return scope.Close(ret);
 }
 
@@ -115,8 +115,8 @@ v8::Handle<v8::Value> ExportName(const v8::Arguments& args) {
   OM_uint32 major = gss_export_name(&minor, name->get(), &buffer);
 
   v8::Local<v8::Object> ret = v8::Object::New();
-  ret->Set(v8::String::NewSymbol("major"), v8::Integer::New(major));
-  ret->Set(v8::String::NewSymbol("minor"), v8::Integer::New(minor));
+  ret->Set(v8::String::NewSymbol("major"), v8::Integer::NewFromUnsigned(major));
+  ret->Set(v8::String::NewSymbol("minor"), v8::Integer::NewFromUnsigned(minor));
   ret->Set(v8::String::NewSymbol("buffer"),
            node::Buffer::New((const char*)buffer.value,
                              buffer.length)->handle_);
