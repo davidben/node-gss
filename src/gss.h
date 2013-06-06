@@ -2,6 +2,7 @@
 #define NODE_GSS_GSS_H_
 
 #include <node.h>
+#include <node_buffer.h>
 #include <v8.h>
 
 #include <gssapi/gssapi.h>
@@ -24,24 +25,29 @@ class GssHandle : public node::ObjectWrap {
     tpl->SetClassName(v8::String::NewSymbol(ctor));
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    constructor_ = v8::Persistent<v8::Function>::New(tpl->GetFunction());
-    exports->Set(v8::String::NewSymbol(ctor), constructor_);
+    exports->Set(v8::String::NewSymbol(ctor), tpl->GetFunction());
+    template_ = v8::Persistent<v8::FunctionTemplate>::New(tpl);
   }
 
   static GssHandle* New(T gss_obj = NULL) {
     v8::HandleScope scope;
-    v8::Local<v8::Object> obj = constructor_->NewInstance();
+    v8::Local<v8::Object> obj = template_->GetFunction()->NewInstance();
     if (obj.IsEmpty()) return NULL;
     GssHandle* handle = ObjectWrap::Unwrap<GssHandle>(obj);
     handle->gss_obj_ = gss_obj;
     return handle;
   }
 
+  static bool HasInstance(v8::Handle<v8::Value> value) {
+    if (!value->IsObject()) return false;
+    return template_->HasInstance(value->ToObject());
+  }
+
   const T& get() const { return gss_obj_; }
   T& get() { return gss_obj_; }
 
  private:
-  static v8::Persistent<v8::Function> constructor_;
+  static v8::Persistent<v8::FunctionTemplate> template_;
 
   GssHandle() : gss_obj_(0) { }
   ~GssHandle() {
@@ -64,7 +70,7 @@ class GssHandle : public node::ObjectWrap {
   T gss_obj_;
 };
 template <class T, OM_uint32 (*Deleter)(OM_uint32*, T*)>
-v8::Persistent<v8::Function> GssHandle<T, Deleter>::constructor_;
+v8::Persistent<v8::FunctionTemplate> GssHandle<T, Deleter>::template_;
 
 
 inline OM_uint32
@@ -79,6 +85,11 @@ typedef GssHandle<gss_name_t, gss_release_name> NameHandle;
 // TODO(davidben): Subclass or wrap or something so we can provide a
 // equals() method for OIDs.
 typedef GssHandle<gss_OID> OidHandle;
+
+bool NodeBufferAsGssBuffer(v8::Handle<v8::Value> value, gss_buffer_t out);
+
+// Various initialization functions.
+void NameInit(v8::Handle<v8::Object> exports);
 
 }  // namespace node_gss
 
