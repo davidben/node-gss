@@ -94,6 +94,19 @@ typedef GssHandle<gss_OID> OidHandle;
       "Expected Buffer as argument " #index)));                         \
     return scope.Close(v8::Undefined());                                \
   }
+// Make this one special so it can deal with NULLs.
+#define OID_ARGUMENT(index, name)                                       \
+  gss_OID name;                                                         \
+  if (OidHandle::HasInstance(args[index])) {                            \
+    name = node::ObjectWrap::Unwrap<OidHandle>(                         \
+        args[index]->ToObject())->get();                                \
+  } else if (args[index]->IsNull() || args[index]->IsUndefined()) {     \
+    name = GSS_C_NO_OID;                                                \
+  } else  {                                                             \
+    v8::ThrowException(v8::Exception::TypeError(v8::String::New(        \
+        "Expected OID as argument " #index)));                          \
+    return scope.Close(v8::Undefined());                                \
+  }
 #define HANDLE_ARGUMENT(index, type, name)                              \
   if (!type::HasInstance(args[index])) {                                \
     v8::ThrowException(v8::Exception::TypeError(v8::String::New(        \

@@ -12,11 +12,11 @@ v8::Handle<v8::Value> ImportName(const v8::Arguments& args) {
   }
 
   BUFFER_ARGUMENT(0, buffer);
-  HANDLE_ARGUMENT(1, OidHandle, oid);
+  OID_ARGUMENT(1, oid);
   HANDLE_ARGUMENT(2, NameHandle, name);
 
   OM_uint32 minor;
-  OM_uint32 major = gss_import_name(&minor, &buffer, oid->get(), &name->get());
+  OM_uint32 major = gss_import_name(&minor, &buffer, oid, &name->get());
   
   v8::Local<v8::Object> ret = v8::Object::New();
   ret->Set(v8::String::NewSymbol("major"), v8::Integer::New(major));
@@ -86,13 +86,12 @@ v8::Handle<v8::Value> CanonicalizeName(const v8::Arguments& args) {
   }
 
   HANDLE_ARGUMENT(0, NameHandle, name);
-  HANDLE_ARGUMENT(1, OidHandle, oid);
+  OID_ARGUMENT(1, oid);
   HANDLE_ARGUMENT(2, NameHandle, output);
 
   OM_uint32 minor;
   OM_uint32 major = gss_canonicalize_name(&minor,
-                                          name->get(), oid->get(),
-                                          &output->get());
+                                          name->get(), oid, &output->get());
 
   v8::Local<v8::Object> ret = v8::Object::New();
   ret->Set(v8::String::NewSymbol("major"), v8::Integer::New(major));
