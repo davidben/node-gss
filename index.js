@@ -106,10 +106,10 @@ exports.acquireCredential = function(name,
                                      timeReq,
                                      desiredMechs,
                                      credUsage) {
-  var nameHandle = name ? name.handle_ : new NameHandle();
+  var nameHandle = name ? name.handle_ : new internal.NameHandle();
   var handle = new internal.CredHandle();
   var ret = gssCall(null, internal.acquireCred,
-                    nameHandle, timeReq, desiredMechs, credUsage);
+                    nameHandle, timeReq, desiredMechs, credUsage, handle);
   // TODO(davidben): Actually do something with the return value? We
   // went through all this trouble to plumb the the gss_OID_set
   // through...
