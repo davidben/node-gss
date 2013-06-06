@@ -115,3 +115,40 @@ exports.acquireCredential = function(name,
   // through...
   return new Credential(handle);
 };
+
+function Context() {
+  this.handle_ = new internal.ContextHandle();
+  this.established_ = false;
+  this.retFlags_ = 0;
+}
+Context.prototype.isEstablished = function() {
+  return this.established_;
+};
+Context.prototype.flags = function() {
+  return this.retFlags_;
+};
+
+function AcceptContext(credential, opts) {
+  Context.call(this);
+  this.credHandle_ = credential ? credential.handle_ : new CredHandle();
+  // TODO(davidben): Pull channel bindings out of opts.
+}
+util.inherits(AcceptContext, Context);
+AcceptContext.prototype.acceptSecContext = function(token) {
+  var srcNameHandle = new NameHandle();
+  var ret = gssCall(null, internal.acceptSecContext,
+                    this.handle_, this.credHandle_, token, null, srcNameHandle);
+  this.retFlags_ = ret.retFlags;
+  if (!(ret.major & exports.S_CONTINUE_NEEDED)) {
+    this.established_ = true;
+    this.srcName_ = new Name(srcNameHandle);
+  }
+  return ret.outputToken;
+}
+AcceptContext.prototype.srcName = function() {
+  return this.srcName_;
+};
+
+exports.createAcceptor = function(credential, opts) {
+  return new AcceptContext(credential, opts);
+};
