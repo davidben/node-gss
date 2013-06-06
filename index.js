@@ -166,7 +166,7 @@ util.inherits(InitContext, Context);
 InitContext.prototype.initSecContext = function(token) {
   // C++ code can't deal with NULL buffers, but an empty buffer works
   // too, according to RFC.
-  token = token || new Buffer();
+  token = token || new Buffer(0);
   var ret = gssCall(null, internal.initSecContext,
                     this.credHandle_, this.handle_, this.target_.handle_,
                     this.mechanism_, this.flags_, this.lifetime_,
