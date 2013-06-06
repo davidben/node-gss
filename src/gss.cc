@@ -61,6 +61,8 @@ void Init(v8::Handle<v8::Object> exports) {
 
   AddConstant(constants, GSS_C_QOP_DEFAULT, "C_QOP_DEFAULT");
 
+  AddConstant(constants, GSS_C_INDEFINITE, "C_INDEFINITE");
+
   AddConstant(constants,
               GSS_S_CALL_INACCESSIBLE_READ, "S_CALL_INACCESSIBLE_READ");
   AddConstant(constants,
