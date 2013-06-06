@@ -2,12 +2,18 @@
 #include <v8.h>
 
 #include <gssapi/gssapi.h>
+#include <gssapi/gssapi_krb5.h>
 
 namespace node_gss {
 
+template <class T> OM_uint32
+NoopDeleter(OM_uint32* minor_status, T* obj) {
+  return GSS_S_COMPLETE;
+}
+
 // This code assumes GSS_C_NO_CONTEXT, etc., are all 0. It seems C++
 // doesn't like passing them as template arguments.
-template <class T, OM_uint32 (*Deleter)(OM_uint32*, T*)>
+template <class T, OM_uint32 (*Deleter)(OM_uint32*, T*) = NoopDeleter<T> >
 class GssHandle : public node::ObjectWrap {
  public:
   static void Init(v8::Handle<v8::Object> exports, const char* ctor) {
@@ -15,13 +21,25 @@ class GssHandle : public node::ObjectWrap {
     tpl->SetClassName(v8::String::NewSymbol(ctor));
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    exports->Set(v8::String::NewSymbol(ctor), tpl->GetFunction());
+    constructor_ = v8::Persistent<v8::Function>::New(tpl->GetFunction());
+    exports->Set(v8::String::NewSymbol(ctor), constructor_);
+  }
+
+  static GssHandle* New(T gss_obj = NULL) {
+    v8::HandleScope scope;
+    v8::Local<v8::Object> obj = constructor_->NewInstance();
+    if (obj.IsEmpty()) return NULL;
+    GssHandle* handle = ObjectWrap::Unwrap<GssHandle>(obj);
+    handle->gss_obj_ = gss_obj;
+    return handle;
   }
 
   const T& get() const { return gss_obj_; }
   T& get() { return gss_obj_; }
 
  private:
+  static v8::Persistent<v8::Function> constructor_;
+
   GssHandle() : gss_obj_(0) { }
   ~GssHandle() {
     if (gss_obj_) {
@@ -42,6 +60,9 @@ class GssHandle : public node::ObjectWrap {
 
   T gss_obj_;
 };
+template <class T, OM_uint32 (*Deleter)(OM_uint32*, T*)>
+v8::Persistent<v8::Function> GssHandle<T, Deleter>::constructor_;
+
 
 OM_uint32
 ContextDeleter(OM_uint32* minor_status, gss_ctx_id_t* ctx) {
@@ -51,15 +72,43 @@ ContextDeleter(OM_uint32* minor_status, gss_ctx_id_t* ctx) {
 typedef GssHandle<gss_ctx_id_t, ContextDeleter> ContextHandle;
 typedef GssHandle<gss_cred_id_t, gss_release_cred> CredHandle;
 typedef GssHandle<gss_name_t, gss_release_name> NameHandle;
-typedef GssHandle<gss_OID_set, gss_release_oid_set> OidSetHandle;
-typedef GssHandle<gss_OID, gss_release_oid> OidHandle;
+
+// TODO(davidben): Subclass or wrap or something so we can provide a
+// equals() method for OIDs.
+typedef GssHandle<gss_OID> OidHandle;
+
+void AddOidConstant(v8::Handle<v8::Object> exports,
+                    gss_OID oid,
+                    const char* name) {
+  exports->Set(v8::String::NewSymbol(name), OidHandle::New(oid)->handle_);
+}
 
 void Init(v8::Handle<v8::Object> exports) {
   ContextHandle::Init(exports, "ContextHandle");
   CredHandle::Init(exports, "CredHandle");
   NameHandle::Init(exports, "NameHandle");
-  OidSetHandle::Init(exports, "OidSetHandle");
-  OidHandle::Init(exports, "OidHandle");
+  OidHandle::Init(exports, "OID");
+
+  // Attach constants separately, so it's easy to export the all.
+  v8::Local<v8::Object> constants = v8::Object::New();
+  exports->Set(v8::String::NewSymbol("constants"), constants);
+
+  AddOidConstant(constants, GSS_C_NT_USER_NAME, "C_NT_USER_NAME");
+  AddOidConstant(constants, GSS_C_NT_MACHINE_UID_NAME, "C_NT_MACHINE_UID_NAME");
+  AddOidConstant(constants, GSS_C_NT_STRING_UID_NAME, "C_NT_STRING_UID_NAME");
+  AddOidConstant(constants,
+                 GSS_C_NT_HOSTBASED_SERVICE_X, "C_NT_HOSTBASED_SERVICE_X");
+  AddOidConstant(constants,
+                 GSS_C_NT_HOSTBASED_SERVICE, "C_NT_HOSTBASED_SERVICE");
+  AddOidConstant(constants, GSS_C_NT_ANONYMOUS, "C_NT_ANONYMOUS");
+  AddOidConstant(constants, GSS_C_NT_EXPORT_NAME, "C_NT_EXPORT_NAME");
+
+  AddOidConstant(constants,
+                 const_cast<gss_OID>(GSS_KRB5_NT_PRINCIPAL_NAME),
+                 "KRB5_NT_PRINCIPAL_NAME");
+  AddOidConstant(constants,
+                 const_cast<gss_OID>(gss_mech_krb5),
+                 "KRB5_MECHANISM");
 }
 
 }  // namespace node_gss
