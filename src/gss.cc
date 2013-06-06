@@ -60,6 +60,38 @@ void Init(v8::Handle<v8::Object> exports) {
   AddConstant(constants, GSS_C_MECH_CODE, "C_MECH_CODE");
 
   AddConstant(constants, GSS_C_QOP_DEFAULT, "C_QOP_DEFAULT");
+
+  AddConstant(constants,
+              GSS_S_CALL_INACCESSIBLE_READ, "S_CALL_INACCESSIBLE_READ");
+  AddConstant(constants,
+              GSS_S_CALL_INACCESSIBLE_WRITE, "S_CALL_INACCESSIBLE_WRITE");
+  AddConstant(constants,
+              GSS_S_CALL_BAD_STRUCTURE, "S_CALL_BAD_STRUCTURE");
+
+  AddConstant(constants, GSS_S_BAD_MECH, "S_BAD_MECH");
+  AddConstant(constants, GSS_S_BAD_NAME, "S_BAD_NAME");
+  AddConstant(constants, GSS_S_BAD_NAMETYPE, "S_BAD_NAMETYPE");
+  AddConstant(constants, GSS_S_BAD_BINDINGS, "S_BAD_BINDINGS");
+  AddConstant(constants, GSS_S_BAD_STATUS, "S_BAD_STATUS");
+  AddConstant(constants, GSS_S_BAD_SIG, "S_BAD_SIG");
+  AddConstant(constants, GSS_S_NO_CRED, "S_NO_CRED");
+  AddConstant(constants, GSS_S_NO_CONTEXT, "S_NO_CONTEXT");
+  AddConstant(constants, GSS_S_DEFECTIVE_TOKEN, "S_DEFECTIVE_TOKEN");
+  AddConstant(constants, GSS_S_DEFECTIVE_CREDENTIAL, "S_DEFECTIVE_CREDENTIAL");
+  AddConstant(constants, GSS_S_CREDENTIALS_EXPIRED, "S_CREDENTIALS_EXPIRED");
+  AddConstant(constants, GSS_S_CONTEXT_EXPIRED, "S_CONTEXT_EXPIRED");
+  AddConstant(constants, GSS_S_FAILURE, "S_FAILURE");
+  AddConstant(constants, GSS_S_BAD_QOP, "S_BAD_QOP");
+  AddConstant(constants, GSS_S_UNAUTHORIZED, "S_UNAUTHORIZED");
+  AddConstant(constants, GSS_S_DUPLICATE_ELEMENT, "S_DUPLICATE_ELEMENT");
+  AddConstant(constants, GSS_S_NAME_NOT_MN, "S_NAME_NOT_MN");
+  AddConstant(constants, GSS_S_BAD_MECH_ATTR, "S_BAD_MECH_ATTR");
+
+  AddConstant(constants, GSS_S_CONTINUE_NEEDED, "S_CONTINUE_NEEDED");
+  AddConstant(constants, GSS_S_DUPLICATE_TOKEN, "S_DUPLICATE_TOKEN");
+  AddConstant(constants, GSS_S_OLD_TOKEN, "S_OLD_TOKEN");
+  AddConstant(constants, GSS_S_UNSEQ_TOKEN, "S_UNSEQ_TOKEN");
+  AddConstant(constants, GSS_S_GAP_TOKEN, "S_GAP_TOKEN");
 }
 
 }  // namespace node_gss
