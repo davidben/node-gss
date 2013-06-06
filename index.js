@@ -129,6 +129,24 @@ Context.prototype.isEstablished = function() {
 Context.prototype.flags = function() {
   return this.retFlags_;
 };
+Context.prototype.wrap = function(input, confidential, qop) {
+  if (qop == undefined)
+    qop = exports.C_QOP_DEFAULT;
+  var ret = gssCall(null, internal.wrap,
+                    this.handle_, confidential ? 1 : 0, qop, input);
+  // Just require the bits we requested. Not getting them is silly.
+  if (confidential && !ret.confState)
+    throw new Error('Did not provide confidentiality');
+  return ret.output;
+};
+Context.prototype.unwrap = function(input) {
+  var ret = gssCall(null, internal.unwrap, this.handle_, input);
+  return {
+    output: ret.output,
+    confidential: ret.confState,
+    qop: ret.qopState
+  };
+};
 
 function AcceptContext(credential, opts) {
   Context.call(this, credential);

@@ -6,6 +6,7 @@
                 "src/context.cc",
                 "src/cred.cc",
                 "src/gss.cc",
+                "src/message.cc",
                 "src/misc.cc",
                 "src/name.cc",
                 "src/util.cc",

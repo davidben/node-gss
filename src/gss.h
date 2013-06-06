@@ -185,6 +185,7 @@ bool NodeBufferAsGssBuffer(v8::Handle<v8::Value> value, gss_buffer_t out);
 // Various initialization functions. Groups by how functions are
 // organized in Section 2 of RFC2744
 void ContextInit(v8::Handle<v8::Object> exports);
+void MessageInit(v8::Handle<v8::Object> exports);
 void CredInit(v8::Handle<v8::Object> exports);
 void NameInit(v8::Handle<v8::Object> exports);
 void MiscInit(v8::Handle<v8::Object> exports);
