@@ -96,6 +96,7 @@ void Init(v8::Handle<v8::Object> exports) {
   AddConstant(constants, GSS_S_UNSEQ_TOKEN, "S_UNSEQ_TOKEN");
   AddConstant(constants, GSS_S_GAP_TOKEN, "S_GAP_TOKEN");
 
+  ContextInit(exports);
   CredInit(exports);
   NameInit(exports);
   MiscInit(exports);
