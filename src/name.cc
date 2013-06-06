@@ -11,26 +11,9 @@ v8::Handle<v8::Value> ImportName(const v8::Arguments& args) {
     return scope.Close(v8::Undefined());
   }
 
-  gss_buffer_desc buffer;
-  if (!NodeBufferAsGssBuffer(args[0], &buffer)) {
-    v8::ThrowException(v8::Exception::TypeError(v8::String::New(
-        "Expected Buffer as first argument")));
-    return scope.Close(v8::Undefined());
-  }
-
-  if (!OidHandle::HasInstance(args[1])) {
-    v8::ThrowException(v8::Exception::TypeError(v8::String::New(
-        "Expected OID as second argument")));
-    return scope.Close(v8::Undefined());
-  }
-  OidHandle* oid = node::ObjectWrap::Unwrap<OidHandle>(args[1]->ToObject());
-
-  if (!NameHandle::HasInstance(args[2])) {
-    v8::ThrowException(v8::Exception::TypeError(v8::String::New(
-        "Expected NameHandle as third argument")));
-    return scope.Close(v8::Undefined());
-  }
-  NameHandle* name = node::ObjectWrap::Unwrap<NameHandle>(args[2]->ToObject());
+  BUFFER_ARGUMENT(0, buffer);
+  HANDLE_ARGUMENT(1, OidHandle, oid);
+  HANDLE_ARGUMENT(2, NameHandle, name);
 
   OM_uint32 minor;
   OM_uint32 major = gss_import_name(&minor, &buffer, oid->get(), &name->get());
@@ -50,12 +33,7 @@ v8::Handle<v8::Value> DisplayName(const v8::Arguments& args) {
     return scope.Close(v8::Undefined());
   }
 
-  if (!NameHandle::HasInstance(args[0])) {
-    v8::ThrowException(v8::Exception::TypeError(v8::String::New(
-        "Expected NameHandle as first argument")));
-    return scope.Close(v8::Undefined());
-  }
-  NameHandle* name = node::ObjectWrap::Unwrap<NameHandle>(args[0]->ToObject());
+  HANDLE_ARGUMENT(0, NameHandle, name);
 
   gss_buffer_desc buffer;
   gss_OID oid;

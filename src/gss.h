@@ -86,6 +86,23 @@ typedef GssHandle<gss_name_t, gss_release_name> NameHandle;
 // equals() method for OIDs.
 typedef GssHandle<gss_OID> OidHandle;
 
+// A bunch of macros for extracting types.
+#define BUFFER_ARGUMENT(index, name)                                    \
+  gss_buffer_desc name;                                                 \
+  if (!NodeBufferAsGssBuffer(args[index], &name)) {                     \
+    v8::ThrowException(v8::Exception::TypeError(v8::String::New(        \
+      "Expected Buffer as argument " #index)));                         \
+    return scope.Close(v8::Undefined());                                \
+  }
+#define HANDLE_ARGUMENT(index, type, name)                              \
+  if (!type::HasInstance(args[index])) {                                \
+    v8::ThrowException(v8::Exception::TypeError(v8::String::New(        \
+        "Expected " #type " as argument " #index)));                    \
+    return scope.Close(v8::Undefined());                                \
+  }                                                                     \
+  type* name = node::ObjectWrap::Unwrap<type>(args[index]->ToObject());
+
+
 bool NodeBufferAsGssBuffer(v8::Handle<v8::Value> value, gss_buffer_t out);
 
 // Various initialization functions.
