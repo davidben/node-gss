@@ -26,6 +26,9 @@ class GssHandle : public node::ObjectWrap {
     v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(New);
     tpl->SetClassName(v8::String::NewSymbol(ctor));
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    tpl->PrototypeTemplate()->Set(
+        v8::String::NewSymbol("isNull"),
+        v8::FunctionTemplate::New(IsNull)->GetFunction());
 
     exports->Set(v8::String::NewSymbol(ctor), tpl->GetFunction());
     template_ = v8::Persistent<v8::FunctionTemplate>::New(tpl);
@@ -67,6 +70,17 @@ class GssHandle : public node::ObjectWrap {
     obj->Wrap(args.This());
 
     return args.This();
+  }
+
+  static v8::Handle<v8::Value> IsNull(const v8::Arguments& args) {
+    v8::HandleScope scope;
+    if (!HasInstance(args.This())) {
+      v8::ThrowException(v8::Exception::TypeError(v8::String::New(
+          "Bad this pointer")));
+      return scope.Close(v8::Undefined());
+    }
+    GssHandle* obj = node::ObjectWrap::Unwrap<GssHandle>(args.This());
+    return scope.Close(v8::Boolean::New(obj->gss_obj_ == NULL));
   }
 
   T gss_obj_;
