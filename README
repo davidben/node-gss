@@ -1,1 +1,5 @@
 GSSAPI bindings for Node
+
+NOTE: All these functions are synchronous, which is kind of poor for node
+bindings. The initiator ones will block on DNS queries, and both will block on
+the KDC. Should move everything to a separate thread sometime.
