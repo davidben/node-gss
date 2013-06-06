@@ -4,6 +4,7 @@
             "target_name": "gss",
             "sources": [
                 "src/gss.cc",
+                "src/misc.cc",
                 "src/name.cc",
                 "src/util.cc",
             ],

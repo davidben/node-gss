@@ -118,8 +118,10 @@ typedef GssHandle<gss_OID> OidHandle;
 
 bool NodeBufferAsGssBuffer(v8::Handle<v8::Value> value, gss_buffer_t out);
 
-// Various initialization functions.
+// Various initialization functions. Groups by how functions are
+// organized in Section 2 of RFC2744
 void NameInit(v8::Handle<v8::Object> exports);
+void MiscInit(v8::Handle<v8::Object> exports);
 
 }  // namespace node_gss
 

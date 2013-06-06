@@ -94,6 +94,7 @@ void Init(v8::Handle<v8::Object> exports) {
   AddConstant(constants, GSS_S_GAP_TOKEN, "S_GAP_TOKEN");
 
   NameInit(exports);
+  MiscInit(exports);
 }
 
 }  // namespace node_gss

@@ -12,3 +12,9 @@ console.log(name.compareName(canonicalized));
 var exported = canonicalized.exportName();
 var imported = gss.importName(exported, gss.C_NT_EXPORT_NAME);
 console.log(imported.toString());
+
+try {
+  name.exportName();
+} catch (e) {
+  console.log(e.toString());
+}
