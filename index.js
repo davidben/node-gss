@@ -175,7 +175,6 @@ InitContext.prototype.initSecContext = function(token) {
   this.retFlags_ = ret.retFlags;
   if (!(ret.major & exports.S_CONTINUE_NEEDED)) {
     this.established_ = true;
-    this.srcName_ = new Name(srcNameHandle);
   }
   return ret.outputToken;
 
