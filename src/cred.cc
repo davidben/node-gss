@@ -17,22 +17,21 @@ v8::Handle<v8::Value> AcquireCred(const v8::Arguments& args) {
   int cred_usage = args[3]->ToInteger()->Value();
   HANDLE_ARGUMENT(4, CredHandle, output_cred_handle);
 
-  gss_OID_set actual_mechs;
-  OM_uint32 time_rec;
+  //  gss_OID_set actual_mechs;
+  //  OM_uint32 time_rec;
   OM_uint32 minor;
   OM_uint32 major = gss_acquire_cred(&minor, name->get(), time_req,
                                      desired_mechs.oid_set(), cred_usage,
                                      &output_cred_handle->get(),
-                                     &actual_mechs,
-                                     &time_rec);
+                                     NULL, NULL);
 
   v8::Local<v8::Object> ret = v8::Object::New();
   ret->Set(v8::String::NewSymbol("major"), v8::Integer::NewFromUnsigned(major));
   ret->Set(v8::String::NewSymbol("minor"), v8::Integer::NewFromUnsigned(minor));
-  ret->Set(v8::String::NewSymbol("timeRec"),
-           v8::Integer::NewFromUnsigned(time_rec));
-  ret->Set(v8::String::NewSymbol("actualMechs"), OidSetToArray(actual_mechs));
-  gss_release_oid_set(&minor, &actual_mechs);
+  //  ret->Set(v8::String::NewSymbol("timeRec"),
+  //           v8::Integer::NewFromUnsigned(time_rec));
+  //  ret->Set(v8::String::NewSymbol("actualMechs"), OidSetToArray(actual_mechs));
+  //  gss_release_oid_set(&minor, &actual_mechs);
   return scope.Close(ret);
 }
 
