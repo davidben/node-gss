@@ -116,7 +116,9 @@ exports.acquireCredential = function(name,
   return new Credential(handle);
 };
 
-function Context() {
+function Context(credential) {
+  this.credHandle_ =
+    credential ? credential.handle_ : new internal.CredHandle();
   this.handle_ = new internal.ContextHandle();
   this.established_ = false;
   this.retFlags_ = 0;
@@ -129,13 +131,12 @@ Context.prototype.flags = function() {
 };
 
 function AcceptContext(credential, opts) {
-  Context.call(this);
-  this.credHandle_ = credential ? credential.handle_ : new CredHandle();
+  Context.call(this, credential);
   // TODO(davidben): Pull channel bindings out of opts.
 }
 util.inherits(AcceptContext, Context);
 AcceptContext.prototype.acceptSecContext = function(token) {
-  var srcNameHandle = new NameHandle();
+  var srcNameHandle = new internal.NameHandle();
   var ret = gssCall(null, internal.acceptSecContext,
                     this.handle_, this.credHandle_, token, null, srcNameHandle);
   this.retFlags_ = ret.retFlags;
@@ -151,4 +152,35 @@ AcceptContext.prototype.srcName = function() {
 
 exports.createAcceptor = function(credential, opts) {
   return new AcceptContext(credential, opts);
+};
+
+function InitContext(credential, target, opts) {
+  Context.call(this, credential);
+  opts = opts || { };
+  this.target_ = target;
+  this.flags_ = opts.flags;
+  this.mechanism_ = opts.mechanism || new internal.OidHandle();
+  this.lifetime_ = opts.lifetime || 0;
+}
+util.inherits(InitContext, Context);
+InitContext.prototype.initSecContext = function(token) {
+  // C++ code can't deal with NULL buffers, but an empty buffer works
+  // too, according to RFC.
+  token = token || new Buffer();
+  var ret = gssCall(null, internal.initSecContext,
+                    this.credHandle_, this.handle_, this.target_.handle_,
+                    this.mechanism_, this.flags_, this.lifetime_,
+                    null, token);
+  this.actualMechanism_ = ret.actualMechType;
+  this.retFlags_ = ret.retFlags;
+  if (!(ret.major & exports.S_CONTINUE_NEEDED)) {
+    this.established_ = true;
+    this.srcName_ = new Name(srcNameHandle);
+  }
+  return ret.outputToken;
+
+}
+
+exports.createInitiator = function(credential, target, opts) {
+  return new InitContext(credential, target, opts);
 };
