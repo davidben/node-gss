@@ -24,6 +24,7 @@ void Init(v8::Handle<v8::Object> exports) {
   v8::Local<v8::Object> constants = v8::Object::New();
   exports->Set(v8::String::NewSymbol("constants"), constants);
 
+  AddOidConstant(constants, GSS_C_NO_OID, "C_NO_OID");
   AddOidConstant(constants, GSS_C_NT_USER_NAME, "C_NT_USER_NAME");
   AddOidConstant(constants, GSS_C_NT_MACHINE_UID_NAME, "C_NT_MACHINE_UID_NAME");
   AddOidConstant(constants, GSS_C_NT_STRING_UID_NAME, "C_NT_STRING_UID_NAME");
