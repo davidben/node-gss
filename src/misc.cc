@@ -17,7 +17,7 @@ v8::Handle<v8::Value> DisplayStatus(const v8::Arguments& args) {
 
   // Okay, what is this monstrousity of an API? I'll just return the
   // list, argh.
-   v8::Local<v8::Array> ret = v8::Array::New();
+  v8::Local<v8::Array> ret = v8::Array::New();
   OM_uint32 minor;
   gss_buffer_desc status_string;
   OM_uint32 message_context = 0;
