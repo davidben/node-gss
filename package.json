@@ -11,5 +11,8 @@
   "author": "David Benjamin <davidben@mit.edu>",
   "license": "MIT",
   "gypfile": true,
-  "readmeFilename": "README"
+  "readmeFilename": "README",
+  "devDependencies": {
+    "q": "~0.9.4"
+  }
 }
