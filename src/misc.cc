@@ -21,6 +21,8 @@ v8::Handle<v8::Value> DisplayStatus(const v8::Arguments& args) {
   OM_uint32 minor;
   gss_buffer_desc status_string;
   OM_uint32 message_context = 0;
+  const int kMaxDisplayIterations = 8;
+  int iter = 0;
   do {
     gss_display_status (
         &minor,
@@ -33,6 +35,11 @@ v8::Handle<v8::Value> DisplayStatus(const v8::Arguments& args) {
     ret->Set(ret->Length(), node::Buffer::New((const char*)status_string.value,
                                               status_string.length)->handle_);
     gss_release_buffer(&minor, &status_string);
+
+    // Take a leaf from Chromium's use of this function and have a
+    // maximum iteration count.
+    if (++iter >= kMaxDisplayIterations)
+      break;
    } while (message_context != 0);
 
   return scope.Close(ret);
