@@ -155,8 +155,11 @@ function AcceptContext(credential, opts) {
 util.inherits(AcceptContext, Context);
 AcceptContext.prototype.acceptSecContext = function(token) {
   var srcNameHandle = new internal.NameHandle();
+  // TODO(davidben): Do something with this.
+  var delegatedCredHandle = new internal.CredHandle();
   var ret = gssCall(null, internal.acceptSecContext,
-                    this.handle_, this.credHandle_, token, null, srcNameHandle);
+                    this.handle_, this.credHandle_, token, null, srcNameHandle,
+                    delegatedCredHandle);
   this.retFlags_ = ret.retFlags;
   if (!(ret.major & exports.S_CONTINUE_NEEDED)) {
     this.established_ = true;
