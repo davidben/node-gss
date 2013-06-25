@@ -44,7 +44,7 @@ v8::Handle<v8::Value> DisplayName(const v8::Arguments& args) {
   ret->Set(v8::String::NewSymbol("major"), v8::Integer::NewFromUnsigned(major));
   ret->Set(v8::String::NewSymbol("minor"), v8::Integer::NewFromUnsigned(minor));
   ret->Set(v8::String::NewSymbol("buffer"),
-           node::Buffer::New((const char*)buffer.value,
+           node::Buffer::New(static_cast<char*>(buffer.value),
                              buffer.length)->handle_);
   ret->Set(v8::String::NewSymbol("oid"),
            OidHandle::New(oid)->handle_);
@@ -118,7 +118,7 @@ v8::Handle<v8::Value> ExportName(const v8::Arguments& args) {
   ret->Set(v8::String::NewSymbol("major"), v8::Integer::NewFromUnsigned(major));
   ret->Set(v8::String::NewSymbol("minor"), v8::Integer::NewFromUnsigned(minor));
   ret->Set(v8::String::NewSymbol("buffer"),
-           node::Buffer::New((const char*)buffer.value,
+           node::Buffer::New(static_cast<char*>(buffer.value),
                              buffer.length)->handle_);
   gss_release_buffer(NULL, &buffer);
   return scope.Close(ret);

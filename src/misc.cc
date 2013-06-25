@@ -32,8 +32,9 @@ v8::Handle<v8::Value> DisplayStatus(const v8::Arguments& args) {
         &message_context,
         &status_string);
 
-    ret->Set(ret->Length(), node::Buffer::New((const char*)status_string.value,
-                                              status_string.length)->handle_);
+    ret->Set(ret->Length(),
+             node::Buffer::New(static_cast<char*>(status_string.value),
+                               status_string.length)->handle_);
     gss_release_buffer(&minor, &status_string);
 
     // Take a leaf from Chromium's use of this function and have a

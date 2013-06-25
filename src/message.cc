@@ -27,7 +27,7 @@ v8::Handle<v8::Value> Wrap(const v8::Arguments& args) {
   ret->Set(v8::String::NewSymbol("minor"), v8::Integer::NewFromUnsigned(minor));
   ret->Set(v8::String::NewSymbol("confState"), v8::Integer::New(conf_state));
   ret->Set(v8::String::NewSymbol("output"),
-           node::Buffer::New((const char*)output.value,
+           node::Buffer::New(static_cast<char*>(output.value),
                              output.length)->handle_);
   return scope.Close(ret);
 }
@@ -55,7 +55,7 @@ v8::Handle<v8::Value> Unwrap(const v8::Arguments& args) {
   ret->Set(v8::String::NewSymbol("major"), v8::Integer::NewFromUnsigned(major));
   ret->Set(v8::String::NewSymbol("minor"), v8::Integer::NewFromUnsigned(minor));
   ret->Set(v8::String::NewSymbol("output"),
-           node::Buffer::New((const char*)output.value,
+           node::Buffer::New(static_cast<char*>(output.value),
                              output.length)->handle_);
   ret->Set(v8::String::NewSymbol("confState"), v8::Integer::New(conf_state));
   ret->Set(v8::String::NewSymbol("qopState"),
