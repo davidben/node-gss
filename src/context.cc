@@ -57,7 +57,7 @@ v8::Handle<v8::Value> InitSecContext(const v8::Arguments& args) {
   ret->Set(v8::String::NewSymbol("actualMechType"),
            OidHandle::New(actual_mech_type)->handle_);
   ret->Set(v8::String::NewSymbol("outputToken"),
-           node::Buffer::New((const char*)output_token.value,
+           node::Buffer::New(static_cast<char*>(output_token.value),
                              output_token.length)->handle_);
   ret->Set(v8::String::NewSymbol("retFlags"),
            v8::Integer::NewFromUnsigned(ret_flags));
@@ -118,7 +118,7 @@ v8::Handle<v8::Value> AcceptSecContext(const v8::Arguments& args) {
   ret->Set(v8::String::NewSymbol("mechType"),
            OidHandle::New(mech_type)->handle_);
   ret->Set(v8::String::NewSymbol("outputToken"),
-           node::Buffer::New((const char*)output_token.value,
+           node::Buffer::New(static_cast<char*>(output_token.value),
                              output_token.length)->handle_);
   ret->Set(v8::String::NewSymbol("retFlags"),
            v8::Integer::NewFromUnsigned(ret_flags));
