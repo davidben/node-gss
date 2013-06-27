@@ -46,8 +46,13 @@ GSSError.prototype.supplementaryInfo = function() {
   return GSS_SUPPLEMENTARY_INFO(this.major);
 }
 GSSError.prototype.toString = function() {
-  var statuses = internal.displayStatus(this.major, exports.C_GSS_CODE,
-                                        this.mechanism);
+  var statuses;
+  if (this.major != exports.S_FAILURE) {
+    statuses = internal.displayStatus(this.major, exports.C_GSS_CODE,
+                                      this.mechanism);
+  } else {
+    statuses = [];
+  }
   if (this.minor) {
     statuses = statuses.concat(
       internal.displayStatus(this.minor, exports.C_MECH_CODE, this.mechanism));
